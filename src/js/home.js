@@ -24,7 +24,7 @@ const  getUser = new Promise(function (todoBien,todoMal) {
 });
 
 /*getUser
-.then(function () {
+.then(function () { ---------------
   console.log('Hola todo bien')
 })
 .catch(function () {
