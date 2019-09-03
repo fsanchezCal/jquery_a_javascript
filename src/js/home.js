@@ -69,6 +69,13 @@ fetch('https://randomuser.me/api/')
     const data = await response.json()
     return data;
    }
+   const $formContainer = document.getElementById('form');
+   const $home = document.getElementById('home');
+
+   $formContainer.addEventListener('submit',(event) => {
+      event.preventDefault();
+      $home.classList.add('search-active');
+   })
    const actionList = await getData('https://yts.lt/api/v2/list_movies.json?genre=action');
    const dramaList = await getData('https://yts.lt/api/v2/list_movies.json?genre=drama');
    const animationList = await getData('https://yts.lt/api/v2/list_movies.json?genre=animation');
@@ -96,9 +103,9 @@ fetch('https://randomuser.me/api/')
     }
   
     //console.log( videoItemTemplate('src/images/covers/midnight.jpg','Fabian Sanchez'));
-function addEventClick($element) {
-  $element.addEventListener('click',function () {
-      alert('hola');
+function addEventClick(element) {
+  element.addEventListener('click',function () {
+      showModal()
   })
   
 }
@@ -128,8 +135,11 @@ function addEventClick($element) {
     renderMovieList(animationList.data.movies,$animationContainer);
 
     const $featuringnContainer = document.getElementById('#featuring');
-    const $formContainer = document.getElementById('#form');
-    const $home = document.getElementById('#home');
+    
+
+
+
+  
 
 
     const  $modal = document.getElementById('modal');
@@ -140,6 +150,9 @@ function addEventClick($element) {
    const $modalImage = modal.querySelector('img');
    const $modalDescripcion = modal.querySelector('p');
 
+   function showModal() {
+     $overlay.classList.add('active');
+   }
   
  
    
