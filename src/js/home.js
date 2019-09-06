@@ -71,14 +71,52 @@ fetch('https://randomuser.me/api/')
    }
    const $formContainer = document.getElementById('form');
    const $home = document.getElementById('home');
+   const $featuringnContainer = document.getElementById('featuring');
 
-   $formContainer.addEventListener('submit',(event) => {
+   function setAttributes(element,attributes) {
+       console.log(attributes);
+     for (const atrribute in attributes) {
+      element.setAttribute(atrribute,attributes[atrribute]);
+     }
+   }
+const BASE_API = 'https://yts.lt/api/v2/';
+
+function featuringTemplate(peli) {
+  return (
+    `
+    <div class="featuring">
+        <div class="featuring-image">
+          <img src="${peli.medium_cover_image}" width="70" height="100" alt="">
+        </div>
+        <div class="featuring-content">
+          <p class="featuring-title">Pelicula encontrada</p>
+          <p class="featuring-album">${peli.title}</p>
+        </div>
+      </div>
+      `
+  )
+}
+
+   $formContainer.addEventListener('submit',async (event) => {
       event.preventDefault();
       $home.classList.add('search-active');
+      const loader = document.createElement('img');
+      setAttributes(loader,{
+        src: 'src/images/loader.gif',
+        height:50,
+        width:50,
+      })
+       $featuringnContainer.append(loader);
+
+       const data = new FormData($formContainer);
+       const peli = await getData(`${BASE_API}list_movies.json?limit=1&query_term=${data.get('name')}`);
+       debugger;
+      const HTMLString = featuringTemplate(peli.data.movies[0]);
+      $featuringnContainer.innerHTML = HTMLString;
    })
-   const actionList = await getData('https://yts.lt/api/v2/list_movies.json?genre=action');
-   const dramaList = await getData('https://yts.lt/api/v2/list_movies.json?genre=drama');
-   const animationList = await getData('https://yts.lt/api/v2/list_movies.json?genre=animation');
+   const actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
+   const dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
+   const animationList = await getData(`${BASE_API}list_movies.json?genre=animation`);
    
    
     console.log(dramaList);
@@ -134,7 +172,7 @@ function addEventClick(element) {
     const $animationContainer = document.getElementById('animation');
     renderMovieList(animationList.data.movies,$animationContainer);
 
-    const $featuringnContainer = document.getElementById('#featuring');
+    
     
 
     const  $modal = document.getElementById('modal');
