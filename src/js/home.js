@@ -114,16 +114,16 @@ function featuringTemplate(peli) {
       const HTMLString = featuringTemplate(peli.data.movies[0]);
       $featuringnContainer.innerHTML = HTMLString;
    })
-   const actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
-   const dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
-   const animationList = await getData(`${BASE_API}list_movies.json?genre=animation`);
+   const  actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
+   const  dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
+   const  animationList = await getData(`${BASE_API}list_movies.json?genre=animation`);
    
    
     console.log(dramaList);
 
-    function videoItemTemplate(movie) {
+    function videoItemTemplate(movie,category) {
       return (
-        `<div class="primaryPlaylistItem">
+        `<div class="primaryPlaylistItem" data-id="${movie.id}" data-category=${category}>
         <div class="primaryPlaylistItem-image">
           <img src="${movie.medium_cover_image}">
         </div>
@@ -142,17 +142,17 @@ function featuringTemplate(peli) {
   
     //console.log( videoItemTemplate('src/images/covers/midnight.jpg','Fabian Sanchez'));
 function addEventClick(element) {
-  element.addEventListener('click',function () {
-      showModal()
+  element.addEventListener('click', () => {
+      showModal(element)
   })
   
 }
     
-    function renderMovieList(list,$container) {
+    function renderMovieList(list,$container,category) {
       //actionList.data.movies.
       $container.children[0].remove();
      list.map((movie) => {
-        const HTMLString = videoItemTemplate(movie);
+        const HTMLString = videoItemTemplate(movie,category);
         const movieElemmet = createTemplate(HTMLString)
         
   
@@ -162,15 +162,15 @@ function addEventClick(element) {
       }) 
     }
     const $actionContainer = document.querySelector('#action');
-  renderMovieList(actionList.data.movies,$actionContainer)
+  renderMovieList(actionList.data.movies,$actionContainer,'action')
 
     
     
     const $dramaContainer = document.getElementById('drama');
-    renderMovieList(dramaList.data.movies,$dramaContainer);
+    renderMovieList(dramaList.data.movies,$dramaContainer,'drama');
 
     const $animationContainer = document.getElementById('animation');
-    renderMovieList(animationList.data.movies,$animationContainer);
+    renderMovieList(animationList.data.movies,$animationContainer,'animation');
 
     
     
@@ -183,9 +183,36 @@ function addEventClick(element) {
    const $modalImage = modal.querySelector('img');
    const $modalDescripcion = modal.querySelector('p');
 
-   function showModal() {
+   function findByID(list,id) {
+     return list.find(movie=> movie.id === parseInt(id,10));
+   }
+  function findMovie(id,category) {
+    switch (category) {
+      case'action':{
+        return findByID(actionList.data.movies,id);
+      }
+      case'drama':{
+        return findByID(dramaList.data.movies,id);
+      }       
+      default:{
+        return findByID(animationList.data.movies,id);
+      }
+    }
+    
+  }
+
+   function showModal(element) {
      $overlay.classList.add('active');
      $modal.style.animation = 'modalIn .8s forwards'
+     const id = element.dataset.id;
+     const category = element.dataset.category;
+     const data = findMovie(id,category);
+
+     $modalTitle.textContent = data.title;
+     $modalImage.setAttribute('src',data.medium_cover_image);
+     $modalDescripcion.textContent = data.description_full;
+
+     debugger;
    }
 
    $hideModal.addEventListener('click',hideModal);
