@@ -56,18 +56,26 @@ $.ajax('https://randomuser.me/api/',{
 fetch('https://randomuser.me/api/')
 .then(function (response) {
   console.log(response)
-  return response.json()
+  const data =  response.json()
+  console.log('Users',data.results)
+  return data;
+  
 })
 .then(function(user) {
-  console.log('User',user.results[0])
+  console.log('User',user.results)
 });
 
 (async function load() {
+  debugger;
   //await
    async function getData(url) {
       const response = await fetch(url)
-    const data = await response.json()
-    return data;
+    const data = await response.json();
+   
+    if(data.data.movie_count > 0){
+       return data;
+    }      
+     throw new Error('No se enconto ningun resultado');
    }
    const $formContainer = document.getElementById('form');
    const $home = document.getElementById('home');
@@ -109,17 +117,22 @@ function featuringTemplate(peli) {
        $featuringnContainer.append(loader);
 
        const data = new FormData($formContainer);
-       const peli = await getData(`${BASE_API}list_movies.json?limit=1&query_term=${data.get('name')}`);
-       debugger;
-      const HTMLString = featuringTemplate(peli.data.movies[0]);
-      $featuringnContainer.innerHTML = HTMLString;
+       try {
+          
+          const peli = await getData(`${BASE_API}list_movies.json?limit=1&query_term=${data.get('name')}`);
+      
+          const HTMLString = featuringTemplate(peli.data.movies[0]);
+          $featuringnContainer.innerHTML = HTMLString;
+       } catch (error) {
+         alert(error.message);
+         loader.remove();
+         $home.classList.remove('search-active');
+       }
+      
    })
-   const  actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
-   const  dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
-   const  animationList = await getData(`${BASE_API}list_movies.json?genre=animation`);
    
    
-    console.log(dramaList);
+    //console.log(dramaList);
 
     function videoItemTemplate(movie,category) {
       return (
@@ -141,12 +154,12 @@ function featuringTemplate(peli) {
     }
   
     //console.log( videoItemTemplate('src/images/covers/midnight.jpg','Fabian Sanchez'));
-function addEventClick(element) {
-  element.addEventListener('click', () => {
-      showModal(element)
-  })
-  
-}
+    function addEventClick(element) {
+      element.addEventListener('click', () => {
+          showModal(element)
+      })
+      
+    }
     
     function renderMovieList(list,$container,category) {
       //actionList.data.movies.
@@ -154,21 +167,27 @@ function addEventClick(element) {
      list.map((movie) => {
         const HTMLString = videoItemTemplate(movie,category);
         const movieElemmet = createTemplate(HTMLString)
-        
-  
         $container.append(movieElemmet)
+       const image = movieElemmet.querySelector('img')
+       image.addEventListener('load',(event) =>{
+         event.srcElement.classList.add('fadeIn')
+       })
+        
         addEventClick(movieElemmet);
         //console.log(HTMLString)
       }) 
     }
+
+    const  actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
     const $actionContainer = document.querySelector('#action');
-  renderMovieList(actionList.data.movies,$actionContainer,'action')
+    renderMovieList(actionList.data.movies,$actionContainer,'action')
 
     
-    
+    const  dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
     const $dramaContainer = document.getElementById('drama');
     renderMovieList(dramaList.data.movies,$dramaContainer,'drama');
 
+    const  animationList = await getData(`${BASE_API}list_movies.json?genre=animation`);
     const $animationContainer = document.getElementById('animation');
     renderMovieList(animationList.data.movies,$animationContainer,'animation');
 
