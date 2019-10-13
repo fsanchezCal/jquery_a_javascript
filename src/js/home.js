@@ -55,9 +55,9 @@ $.ajax('https://randomuser.me/api/',{
 
 fetch('https://randomuser.me/api/')
 .then(function (response) {
-  console.log(response)
+ // console.log(response)
   const data =  response.json()
-  console.log('Users',data.results)
+  console.log('Users',data)
   return data;
   
 })
@@ -66,7 +66,7 @@ fetch('https://randomuser.me/api/')
 });
 
 (async function load() {
-  debugger;
+ 
   //await
    async function getData(url) {
       const response = await fetch(url)
@@ -77,9 +77,16 @@ fetch('https://randomuser.me/api/')
     }      
      throw new Error('No se enconto ningun resultado');
    }
+   async function getFriends(url) {
+    const response = await fetch(url)
+    const data = await response.json();
+     return data;
+
+   }
    const $formContainer = document.getElementById('form');
    const $home = document.getElementById('home');
    const $featuringnContainer = document.getElementById('featuring');
+   const $friendsContainer= document.getElementById('playlistFriends');
 
    function setAttributes(element,attributes) {
        console.log(attributes);
@@ -88,6 +95,7 @@ fetch('https://randomuser.me/api/')
      }
    }
 const BASE_API = 'https://yts.lt/api/v2/';
+const BASE_API_FRIEND = 'https://randomuser.me/api/';
 
 function featuringTemplate(peli) {
   return (
@@ -104,8 +112,22 @@ function featuringTemplate(peli) {
       `
   )
 }
+function playlistAmigosTemplate(friend) {
+  return(
+    `
+    <li class="playlistFriends-item" id="${friend.id.value}">
+      <a href="#">
+        <img src="${friend.picture.thumbnail}" alt="echame la culpa" />
+        <span>
+          ${friend.name.first} ${friend.name.last}
+        </span>
+      </a>
+    </li>
+    `
+    )  
+}
 
-   $formContainer.addEventListener('submit',async (event) => {
+$formContainer.addEventListener('submit',async (event) => {
       event.preventDefault();
       $home.classList.add('search-active');
       const loader = document.createElement('img');
@@ -129,23 +151,23 @@ function featuringTemplate(peli) {
          $home.classList.remove('search-active');
        }
       
-   })
+  })
    
    
     //console.log(dramaList);
 
-    function videoItemTemplate(movie,category) {
-      return (
-        `<div class="primaryPlaylistItem" data-id="${movie.id}" data-category=${category}>
-        <div class="primaryPlaylistItem-image">
-          <img src="${movie.medium_cover_image}">
-        </div>
-        <h4 class="primaryPlaylistItem-title">
-          ${movie.title}
-        </h4>
-    </div>`
-      )
-    }
+  function videoItemTemplate(movie,category) {
+    return (
+      `<div class="primaryPlaylistItem" data-id="${movie.id}" data-category=${category}>
+      <div class="primaryPlaylistItem-image">
+        <img src="${movie.medium_cover_image}">
+      </div>
+      <h4 class="primaryPlaylistItem-title">
+        ${movie.title}
+      </h4>
+  </div>`
+    )
+  }
 
     function createTemplate(HTMLString) {
       const html =  document.implementation.createHTMLDocument();
@@ -177,6 +199,13 @@ function featuringTemplate(peli) {
         //console.log(HTMLString)
       }) 
     }
+    function renderFriends(listFriends,friendsContainer) {
+      listFriends.results.map((friend) =>{
+        const HTMLString = playlistAmigosTemplate(friend);
+        const FriendHTML = createTemplate(HTMLString);
+        friendsContainer.append(FriendHTML);
+      })
+    }
 
     const  actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
     const $actionContainer = document.querySelector('#action');
@@ -191,8 +220,10 @@ function featuringTemplate(peli) {
     const $animationContainer = document.getElementById('animation');
     renderMovieList(animationList.data.movies,$animationContainer,'animation');
 
-    
-    
+    const usersList = await getFriends(`${BASE_API_FRIEND}?results= 10`);
+    debugger;
+    renderFriends(usersList,$friendsContainer);
+   
 
     const  $modal = document.getElementById('modal');
     const  $overlay = document.getElementById('overlay');
