@@ -126,6 +126,19 @@ function playlistAmigosTemplate(friend) {
     `
     )  
 }
+function playList(movie) {
+  return(
+    `
+    <li class="myPlaylist-item" name"movie${movie.id}">
+    <a href="#">
+      <span>
+        ${movie.title}
+      </span>
+    </a>
+  </li>
+    `
+  )
+}
 
 $formContainer.addEventListener('submit',async (event) => {
       event.preventDefault();
@@ -215,13 +228,16 @@ $formContainer.addEventListener('submit',async (event) => {
     const  dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
     const $dramaContainer = document.getElementById('drama');
     renderMovieList(dramaList.data.movies,$dramaContainer,'drama');
-
+     
     const  animationList = await getData(`${BASE_API}list_movies.json?genre=animation`);
     const $animationContainer = document.getElementById('animation');
     renderMovieList(animationList.data.movies,$animationContainer,'animation');
 
+  
+    const movieList = await getData(`${BASE_API}list_movies.json?rating>7&rating<10&limit=9`);
+    const $playListContainer = document.getElementById("myPlaylist");
+     
     const usersList = await getFriends(`${BASE_API_FRIEND}?results= 10`);
-    debugger;
     renderFriends(usersList,$friendsContainer);
    
 
