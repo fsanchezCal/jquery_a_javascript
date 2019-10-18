@@ -87,6 +87,7 @@ fetch('https://randomuser.me/api/')
    const $home = document.getElementById('home');
    const $featuringnContainer = document.getElementById('featuring');
    const $friendsContainer= document.getElementById('playlistFriends');
+  
 
    function setAttributes(element,attributes) {
        console.log(attributes);
@@ -126,10 +127,10 @@ function playlistAmigosTemplate(friend) {
     `
     )  
 }
-function playList(movie) {
+function playListTemplate(movie) {
   return(
     `
-    <li class="myPlaylist-item" name"movie${movie.id}">
+    <li class="myPlaylist-item" name="movie${movie.id}" data-id="${movie.id}" data-category="${movie.genres[0]}">
     <a href="#">
       <span>
         ${movie.title}
@@ -219,6 +220,14 @@ $formContainer.addEventListener('submit',async (event) => {
         friendsContainer.append(FriendHTML);
       })
     }
+    function renderPlayList(listMovies,playListContainer) {
+      listMovies.map((movie) => {
+        const HTMLString = playListTemplate(movie);
+        const playListaHTML = createTemplate(HTMLString);
+        playListContainer.append(playListaHTML);
+        addEventClick(playListaHTML);
+      })
+    }
 
     const  actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
     const $actionContainer = document.querySelector('#action');
@@ -234,10 +243,12 @@ $formContainer.addEventListener('submit',async (event) => {
     renderMovieList(animationList.data.movies,$animationContainer,'animation');
 
   
-    const movieList = await getData(`${BASE_API}list_movies.json?rating>7&rating<10&limit=9`);
+    const moviePlayList = await getData(`${BASE_API}list_movies.json?genre=action&genre=drama&genre=&animation&rating>7&rating<10&limit=9`);
+    debugger;
     const $playListContainer = document.getElementById("myPlaylist");
+    renderPlayList(moviePlayList.data.movies,$playListContainer);
      
-    const usersList = await getFriends(`${BASE_API_FRIEND}?results= 10`);
+    const usersList = await getFriends(`${BASE_API_FRIEND}?results=10`);
     renderFriends(usersList,$friendsContainer);
    
 
@@ -253,6 +264,9 @@ $formContainer.addEventListener('submit',async (event) => {
      return list.find(movie=> movie.id === parseInt(id,10));
    }
   function findMovie(id,category) {
+   
+    //const arrayCategoria
+
     switch (category) {
       case'action':{
         return findByID(actionList.data.movies,id);
@@ -268,6 +282,7 @@ $formContainer.addEventListener('submit',async (event) => {
   }
 
    function showModal(element) {
+     debugger;
      $overlay.classList.add('active');
      $modal.style.animation = 'modalIn .8s forwards'
      const id = element.dataset.id;
@@ -277,8 +292,6 @@ $formContainer.addEventListener('submit',async (event) => {
      $modalTitle.textContent = data.title;
      $modalImage.setAttribute('src',data.medium_cover_image);
      $modalDescripcion.textContent = data.description_full;
-
-     debugger;
    }
 
    $hideModal.addEventListener('click',hideModal);
