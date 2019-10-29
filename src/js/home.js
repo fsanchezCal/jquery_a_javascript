@@ -229,22 +229,36 @@ $formContainer.addEventListener('submit',async (event) => {
       })
     }
 
-    const  actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
+   async function cacheExist(category) {
+     const listaName = `${category}List`
+    const cacheList = window.localStorage.getItem(listaName);
+    if (cacheList) {
+      return JSON.parse(cacheList); 
+    }
+
+     const data = await getData(`${BASE_API}list_movies.json?genre=${category}`);
+     window.localStorage.setItem(listaName,JSON.stringify(data.data.movies) )
+     return data.data.movies;
+    }
+
+    //const  actionList = await getData(`${BASE_API}list_movies.json?genre=action`);
+    const  actionList = await cacheExist('action')
     const $actionContainer = document.querySelector('#action');
-    renderMovieList(actionList.data.movies,$actionContainer,'action')
+    renderMovieList(actionList,$actionContainer,'action')
 
     
-    const  dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
+   // const  dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
+   const  dramaList = await cacheExist('drama')
     const $dramaContainer = document.getElementById('drama');
-    renderMovieList(dramaList.data.movies,$dramaContainer,'drama');
+    renderMovieList(dramaList,$dramaContainer,'drama');
      
-    const  animationList = await getData(`${BASE_API}list_movies.json?genre=animation`);
+    //const  animationList = await getData(`${BASE_API}list_movies.json?genre=animation`);
+    const  animationList = await cacheExist('animation')
     const $animationContainer = document.getElementById('animation');
-    renderMovieList(animationList.data.movies,$animationContainer,'animation');
+    renderMovieList(animationList,$animationContainer,'animation');
 
   
     const moviePlayList = await getData(`${BASE_API}list_movies.json?genre=action&genre=drama&genre=&animation&rating>7&rating<10&limit=9`);
-    debugger;
     const $playListContainer = document.getElementById("myPlaylist");
     renderPlayList(moviePlayList.data.movies,$playListContainer);
      
