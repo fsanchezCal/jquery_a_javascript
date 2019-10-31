@@ -283,13 +283,13 @@ $formContainer.addEventListener('submit',async (event) => {
 
     switch (category) {
       case'action':{
-        return findByID(actionList.data.movies,id);
+        return findByID(actionList,id);
       }
       case'drama':{
-        return findByID(dramaList.data.movies,id);
+        return findByID(dramaList,id);
       }       
       default:{
-        return findByID(animationList.data.movies,id);
+        return findByID(animationList,id);
       }
     }
     
