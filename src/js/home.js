@@ -97,6 +97,7 @@ fetch('https://randomuser.me/api/')
    }
 const BASE_API = 'https://yts.lt/api/v2/';
 const BASE_API_FRIEND = 'https://randomuser.me/api/';
+const arrayCategory =["Drama","Action","Animation"]
 
 function featuringTemplate(peli) {
   return (
@@ -127,7 +128,7 @@ function playlistAmigosTemplate(friend) {
     `
     )  
 }
-function playListTemplate(movie) {
+function playListTemplate(movie) {  
   return(
     `
     <li class="myPlaylist-item" name="movie${movie.id}" data-id="${movie.id}" data-category="${movie.genres[0]}">
@@ -220,13 +221,21 @@ $formContainer.addEventListener('submit',async (event) => {
         friendsContainer.append(FriendHTML);
       })
     }
-    function renderPlayList(listMovies,playListContainer) {
-      listMovies.map((movie) => {
-        const HTMLString = playListTemplate(movie);
-        const playListaHTML = createTemplate(HTMLString);
-        playListContainer.append(playListaHTML);
-        addEventClick(playListaHTML);
+    function renderPlayList(listMovies,playListContainer) {  
+      const moviesFilter = listMovies.filter(findMovieCategory);
+      const moviesCantidad = moviesFilter.slice(0,9);
+      moviesCantidad.map((movie) => {
+          const HTMLString = playListTemplate(movie);
+          const playListaHTML = createTemplate(HTMLString);
+          playListContainer.append(playListaHTML);
+          addEventClick(playListaHTML);
       })
+    }
+    function findMovieCategory(movie) {
+       if (arrayCategory.includes(movie.genres[0])) {
+           return movie
+       }
+       
     }
 
    async function cacheExist(category) {
@@ -248,7 +257,7 @@ $formContainer.addEventListener('submit',async (event) => {
 
     
    // const  dramaList = await getData(`${BASE_API}list_movies.json?genre=drama`);
-   const  dramaList = await cacheExist('drama')
+    const  dramaList = await cacheExist('drama')
     const $dramaContainer = document.getElementById('drama');
     renderMovieList(dramaList,$dramaContainer,'drama');
      
@@ -258,7 +267,7 @@ $formContainer.addEventListener('submit',async (event) => {
     renderMovieList(animationList,$animationContainer,'animation');
 
   
-    const moviePlayList = await getData(`${BASE_API}list_movies.json?genre=action&genre=drama&genre=&animation&rating>7&rating<10&limit=9`);
+    const moviePlayList = await getData(`${BASE_API}list_movies.json?genre=action&genre=drama&genre=&animation&rating>7&rating<10`);
     const $playListContainer = document.getElementById("myPlaylist");
     renderPlayList(moviePlayList.data.movies,$playListContainer);
      
@@ -279,24 +288,34 @@ $formContainer.addEventListener('submit',async (event) => {
    }
   function findMovie(id,category) {
    
+    
     //const arrayCategoria
-
-    switch (category) {
+     
+     let movieFind;
+    switch (category.toLowerCase()) {
       case'action':{
-        return findByID(actionList,id);
+        movieFind = findByID(actionList,id);
       }
+      break;
       case'drama':{
-        return findByID(dramaList,id);
-      }       
+        movieFind = findByID(dramaList,id);    
+      }   
+      break;      
       default:{
-        return findByID(animationList,id);
+        movieFind = findByID(animationList,id);
       }
+      break;
     }
+
+    if (movieFind) {
+      return movieFind;
+    }
+
+    return findByID(moviePlayList.data.movies,id);
     
   }
 
-   function showModal(element) {
-     debugger;
+   function showModal(element) {    
      $overlay.classList.add('active');
      $modal.style.animation = 'modalIn .8s forwards'
      const id = element.dataset.id;
